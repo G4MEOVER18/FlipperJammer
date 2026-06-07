@@ -12,8 +12,9 @@ typedef enum {
     Nrf24JamLogitech,
 } Nrf24JamMode;
 
-/** Initialise NRF24 and start hopping on the channel set for mode. */
-void nrf24_jam_start(Nrf24JamMode mode);
+/** Initialise NRF24 and start hopping on the channel set for mode.
+ *  @param power 0=-18dBm, 1=-12, 2=-6, 3=0dBm (max) */
+void nrf24_jam_start(Nrf24JamMode mode, uint8_t power);
 
 /** Stop jamming and release SPI / GPIO. */
 void nrf24_jam_stop(void);

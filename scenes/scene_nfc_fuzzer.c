@@ -41,7 +41,8 @@ void jammer_scene_NfcFuzzerRun_on_enter(void* context) {
     nfc_fuzzer_update_widget(app);
     view_dispatcher_switch_to_view(app->view_dispatcher, ViewWidget);
 
-    furi_timer_start(app->run_timer, 500);
+    app->tick_ms = 500;
+    furi_timer_start(app->run_timer, app->tick_ms);
 }
 
 bool jammer_scene_NfcFuzzerRun_on_event(void* context, SceneManagerEvent event) {

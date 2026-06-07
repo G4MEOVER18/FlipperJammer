@@ -174,3 +174,8 @@ void subghz_jam_stop(void) {
 bool subghz_jam_is_running(void) {
     return s.running;
 }
+
+float subghz_jam_current_freq_mhz(void) {
+    if(!s.running) return 0.0f;
+    return (s.mode == SubGhzJamSweep) ? s.sweep_freq_mhz : s.base_freq_mhz;
+}

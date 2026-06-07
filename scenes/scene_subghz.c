@@ -127,7 +127,13 @@ static void subghz_run_update_widget(JammerApp* app) {
     snprintf(header, sizeof(header), "SubGHz AKTIV");
 
     char line1[48];
-    snprintf(line1, sizeof(line1), "Freq: %s (%s)", freq_str, src_str);
+    if(app->subghz_mode == SubGhzModeSweep) {
+        // Live-Frequenz anzeigen im Sweep-Modus
+        float live = subghz_jam_current_freq_mhz();
+        snprintf(line1, sizeof(line1), "Freq: %.2f MHz (%s)", (double)live, src_str);
+    } else {
+        snprintf(line1, sizeof(line1), "Freq: %s (%s)", freq_str, src_str);
+    }
 
     char line2[32];
     snprintf(line2, sizeof(line2), "Modus: %s", mode_str);
@@ -161,7 +167,9 @@ void jammer_scene_SubGhzRun_on_enter(void* context) {
     subghz_run_update_widget(app);
     view_dispatcher_switch_to_view(app->view_dispatcher, ViewWidget);
 
-    furi_timer_start(app->run_timer, 500);
+    // Sweep-Modus: 100ms Update fuer fluessige Frequenz-Anzeige
+    app->tick_ms = (app->subghz_mode == SubGhzModeSweep) ? 100 : 500;
+    furi_timer_start(app->run_timer, app->tick_ms);
 }
 
 bool jammer_scene_SubGhzRun_on_event(void* context, SceneManagerEvent event) {

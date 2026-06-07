@@ -1,6 +1,7 @@
 #include "jammer_app.h"
 #include "scenes/scenes.h"
 #include "modules/nrf24_spi.h"
+#include "modules/jammer_storage.h"
 #include <notification/notification.h>
 #include <lib/subghz/devices/devices.h>
 #include <applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h>
@@ -70,21 +71,20 @@ uint32_t jammer_duration_to_ms(DurationOption opt) {
 
 void jammer_timer_callback(void* context) {
     JammerApp* app = context;
+    uint32_t tick = app->tick_ms ? app->tick_ms : 500;
 
     if(app->total_ms == 0) {
-        /* Unlimited — just tick elapsed */
-        app->elapsed_ms += 500;
+        app->elapsed_ms += tick;
         return;
     }
 
-    if(app->elapsed_ms + 500 >= app->total_ms) {
+    if(app->elapsed_ms + tick >= app->total_ms) {
         app->elapsed_ms = app->total_ms;
         app->running    = false;
         furi_timer_stop(app->run_timer);
-        /* Signal the view dispatcher to go back */
         view_dispatcher_send_custom_event(app->view_dispatcher, 0xDEAD);
     } else {
-        app->elapsed_ms += 500;
+        app->elapsed_ms += tick;
     }
 }
 
@@ -137,6 +137,7 @@ JammerApp* jammer_app_alloc(void) {
     app->ir_mode         = IrModeNoiseBurst;
     app->ir_external     = false;
     app->nrf24_mode      = Nrf24ModeAll;
+    app->nrf24_power     = 3; // max (+0dBm)
     app->wifi_channel    = 0; /* ALL */
     app->wifi_broadcast  = true;
     snprintf(app->wifi_bssid, sizeof(app->wifi_bssid), "FF:FF:FF:FF:FF:FF");
@@ -220,12 +221,15 @@ int32_t jammer_app_main(void* p) {
     UNUSED(p);
     JammerApp* app = jammer_app_alloc();
 
-    // Hardware beim Start erkennen
+    // Settings laden + Hardware-Erkennung
+    jammer_settings_load(app);
     jammer_hw_detect(app);
 
     scene_manager_next_scene(app->scene_manager, SceneMainMenu);
     view_dispatcher_run(app->view_dispatcher);
 
+    // Settings beim Beenden speichern
+    jammer_settings_save(app);
     jammer_app_free(app);
     return 0;
 }

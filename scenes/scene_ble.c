@@ -22,6 +22,11 @@ static void ble_config_enter_cb(void* context, uint32_t index) {
         app->active_module = SceneBleRun;
         scene_manager_next_scene(app->scene_manager, SceneDuration);
     } else if(index == BleCfgStart) {
+        if(!app->hw_nrf24) {
+            app->info_text = INFO_BLE;
+            scene_manager_next_scene(app->scene_manager, SceneInfo);
+            return;
+        }
         scene_manager_next_scene(app->scene_manager, SceneBleRun);
     } else if(index == BleCfgInfo) {
         app->info_text = INFO_BLE;
@@ -98,7 +103,8 @@ void jammer_scene_BleRun_on_enter(void* context) {
     ble_run_update_widget(app);
     view_dispatcher_switch_to_view(app->view_dispatcher, ViewWidget);
 
-    furi_timer_start(app->run_timer, 500);
+    app->tick_ms = 500;
+    furi_timer_start(app->run_timer, app->tick_ms);
 }
 
 bool jammer_scene_BleRun_on_event(void* context, SceneManagerEvent event) {

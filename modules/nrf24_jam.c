@@ -110,7 +110,7 @@ static void nrf24_jam_timer_cb(void* ctx) {
 /*  Public API                                                          */
 /* ------------------------------------------------------------------ */
 
-void nrf24_jam_start(Nrf24JamMode mode) {
+void nrf24_jam_start(Nrf24JamMode mode, uint8_t power) {
     if(s.running) nrf24_jam_stop();
 
     const ChannelSet* cs = &channel_sets[(uint8_t)mode];
@@ -121,6 +121,12 @@ void nrf24_jam_start(Nrf24JamMode mode) {
     s.running    = true;
 
     nrf24_spi_init();
+
+    // Power-Level via RF_SETUP Bits 1-2:
+    // 00 = -18 dBm, 01 = -12 dBm, 10 = -6 dBm, 11 = 0 dBm
+    // RF_DR_HIGH (Bit 3) = 1 fuer 2 Mbps
+    uint8_t pwr_bits = (power & 0x03) << 1;
+    nrf24_write_reg(NRF24_REG_RF_SETUP, NRF24_RF_SETUP_2MBPS | pwr_bits);
 
     s.timer = furi_timer_alloc(nrf24_jam_timer_cb, FuriTimerTypePeriodic, NULL);
     furi_timer_start(s.timer, 2);

@@ -128,6 +128,7 @@ typedef struct {
 
     /* NRF24 config */
     Nrf24Mode nrf24_mode;
+    uint8_t   nrf24_power;  // 0=-18dBm, 1=-12, 2=-6, 3=0dBm
 
     /* WiFi config */
     uint8_t wifi_channel; /* 0 = ALL, 1-13 = specific */
@@ -151,6 +152,7 @@ typedef struct {
     FuriTimer* run_timer;
     uint32_t   elapsed_ms;
     uint32_t   total_ms;
+    uint32_t   tick_ms;     // aktuelle Timer-Periode (100/500)
 
     /* Scene routing helper */
     JammerScene active_module; /* which run-scene to go to after duration */

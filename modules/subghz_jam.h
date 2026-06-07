@@ -21,3 +21,6 @@ void subghz_jam_stop(void);
 
 /** Returns true while jamming is active. */
 bool subghz_jam_is_running(void);
+
+/** Im Sweep-Modus: aktuell ausgegebene Frequenz in MHz. Sonst Basis-Frequenz. */
+float subghz_jam_current_freq_mhz(void);

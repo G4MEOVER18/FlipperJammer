@@ -20,6 +20,7 @@ static void main_menu_callback(void* context, uint32_t index) {
         scene_manager_next_scene(app->scene_manager, SceneSubGhzConfig);
         break;
     case MainMenuNrf24:
+        // Trotzdem zulassen — Config-Scene warnt, wenn !hw_nrf24
         scene_manager_next_scene(app->scene_manager, SceneNrf24Config);
         break;
     case MainMenuBle:
@@ -63,15 +64,15 @@ void jammer_scene_MainMenu_on_enter(void* context) {
         app->hw_ext_cc1101 ? " [EXT]" : "");
     submenu_add_item(app->submenu, subghz_label,     MainMenuSubGhz,  main_menu_callback, app);
 
-    // NRF24: Hinweis wenn Modul erkannt
-    static char nrf24_label[24];
-    snprintf(nrf24_label, sizeof(nrf24_label), "2.4GHz NRF24%s",
-        app->hw_nrf24 ? " [OK]" : "");
+    // NRF24/BLE brauchen NRF24-Modul
+    static char nrf24_label[28];
+    snprintf(nrf24_label, sizeof(nrf24_label), "2.4GHz NRF24 %s",
+        app->hw_nrf24 ? "[OK]" : "[!HW]");
     submenu_add_item(app->submenu, nrf24_label,      MainMenuNrf24,   main_menu_callback, app);
 
-    static char ble_label[24];
-    snprintf(ble_label, sizeof(ble_label), "BLE Jammer%s",
-        app->hw_nrf24 ? " [OK]" : "");
+    static char ble_label[28];
+    snprintf(ble_label, sizeof(ble_label), "BLE Jammer %s",
+        app->hw_nrf24 ? "[OK]" : "[!HW]");
     submenu_add_item(app->submenu, ble_label,        MainMenuBle,     main_menu_callback, app);
     submenu_add_item(app->submenu, "WiFi Deauth (L2)",MainMenuWifi,    main_menu_callback, app);
     submenu_add_item(app->submenu, "IR Jammer",      MainMenuIr,      main_menu_callback, app);

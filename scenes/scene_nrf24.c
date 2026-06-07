@@ -14,6 +14,13 @@ static const char* nrf24_mode_labels[] = {
     "Logitech",
 };
 
+static const char* nrf24_power_labels[] = {
+    "-18 dBm (min)",
+    "-12 dBm",
+    "-6 dBm",
+    "0 dBm (max)",
+};
+
 /* ------------------------------------------------------------------ */
 /*  Config                                                              */
 /* ------------------------------------------------------------------ */
@@ -23,6 +30,13 @@ static void nrf24_mode_change(VariableItem* item) {
     uint8_t    index = variable_item_get_current_value_index(item);
     variable_item_set_current_value_text(item, nrf24_mode_labels[index]);
     app->nrf24_mode = (Nrf24Mode)index;
+}
+
+static void nrf24_power_change(VariableItem* item) {
+    JammerApp* app   = variable_item_get_context(item);
+    uint8_t    index = variable_item_get_current_value_index(item);
+    variable_item_set_current_value_text(item, nrf24_power_labels[index]);
+    app->nrf24_power = index;
 }
 
 typedef enum {
@@ -40,6 +54,12 @@ static void nrf24_config_enter(void* context, uint32_t index) {
         app->active_module = SceneNrf24Run;
         scene_manager_next_scene(app->scene_manager, SceneDuration);
     } else if(index == Nrf24CfgStart) {
+        // Sicherheit: bei fehlender HW Info-Page statt Crash zeigen
+        if(!app->hw_nrf24) {
+            app->info_text = INFO_NRF24;
+            scene_manager_next_scene(app->scene_manager, SceneInfo);
+            return;
+        }
         scene_manager_next_scene(app->scene_manager, SceneNrf24Run);
     } else if(index == Nrf24CfgInfo) {
         app->info_text = INFO_NRF24;
@@ -66,6 +86,10 @@ void jammer_scene_Nrf24Config_on_enter(void* context) {
         app->var_list, "Modus", 7, nrf24_mode_change, app);
     variable_item_set_current_value_index(item, (uint8_t)app->nrf24_mode);
     variable_item_set_current_value_text(item, nrf24_mode_labels[(uint8_t)app->nrf24_mode]);
+
+    item = variable_item_list_add(app->var_list, "Power", 4, nrf24_power_change, app);
+    variable_item_set_current_value_index(item, app->nrf24_power);
+    variable_item_set_current_value_text(item, nrf24_power_labels[app->nrf24_power]);
 
     variable_item_list_add(app->var_list, "Dauer waehlen...", 1, NULL, app);
     variable_item_list_add(app->var_list, ">> START <<",      1, NULL, app);
@@ -120,13 +144,15 @@ void jammer_scene_Nrf24Run_on_enter(void* context) {
     app->total_ms   = app->duration_ms;
     app->running    = true;
 
-    nrf24_jam_start((Nrf24JamMode)app->nrf24_mode);
+    nrf24_jam_start((Nrf24JamMode)app->nrf24_mode, app->nrf24_power);
     jammer_notify_start(app);
 
     nrf24_run_update_widget(app);
     view_dispatcher_switch_to_view(app->view_dispatcher, ViewWidget);
 
-    furi_timer_start(app->run_timer, 500);
+    // 100ms Update fuer fluessigen Channel-Display (hopping ist 2ms intern)
+    app->tick_ms = 100;
+    furi_timer_start(app->run_timer, app->tick_ms);
 }
 
 bool jammer_scene_Nrf24Run_on_event(void* context, SceneManagerEvent event) {

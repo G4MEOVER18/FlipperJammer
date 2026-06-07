@@ -119,7 +119,12 @@ static void wifi_run_update_widget(JammerApp* app) {
 
     widget_add_string_element(app->widget, 64,  2, AlignCenter, AlignTop, FontPrimary,   "WiFi DEAUTH (L2)");
     widget_add_string_element(app->widget,  2, 18, AlignLeft,   AlignTop, FontSecondary, line1);
-    widget_add_string_element(app->widget,  2, 30, AlignLeft,   AlignTop, FontSecondary, "Multiboard ESP32 (PA2/PA3)");
+    // ESP32-Online + RX-Bytes
+    char esp_line[40];
+    snprintf(esp_line, sizeof(esp_line), "ESP32: %s  RX:%lu",
+        wifi_jam_esp_online() ? "OK" : "?",
+        (unsigned long)wifi_jam_rx_bytes());
+    widget_add_string_element(app->widget,  2, 30, AlignLeft,   AlignTop, FontSecondary, esp_line);
     widget_add_string_element(app->widget,  2, 42, AlignLeft,   AlignTop, FontSecondary, line_time);
     widget_add_string_element(app->widget, 64, 55, AlignCenter, AlignTop, FontSecondary, "[BACK] Stopp");
 }
@@ -138,7 +143,8 @@ void jammer_scene_WifiRun_on_enter(void* context) {
     wifi_run_update_widget(app);
     view_dispatcher_switch_to_view(app->view_dispatcher, ViewWidget);
 
-    furi_timer_start(app->run_timer, 500);
+    app->tick_ms = 500;
+    furi_timer_start(app->run_timer, app->tick_ms);
 }
 
 bool jammer_scene_WifiRun_on_event(void* context, SceneManagerEvent event) {
