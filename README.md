@@ -193,6 +193,30 @@ MIT — siehe Quellcode-Header.
 - [d1mov/FlipperzeroNRFJammer](https://github.com/d1mov/FlipperzeroNRFJammer) — Channel-Set Inspiration
 - [ESP8266Deauther](https://github.com/SpacehuhnTech/esp8266_deauther) — Deauth-Protokoll
 
+## Verwandte Projekte
+
+Teil der **G4MEOVER Flipper Zero Toolchain**:
+
+- [G4MEOVER-FW](https://github.com/G4MEOVER18/G4MEOVER-FW) — Custom Firmware
+- [RollForge](https://github.com/G4MEOVER18/RollForge) — RollJam + RollLab + Jammer (unified)
+- [RollJam](https://github.com/G4MEOVER18/RollJam) — Rolling-Code Jam+Capture+Replay
+- [RollLab](https://github.com/G4MEOVER18/RollLab) — Signal-Analyzer Research
+- [ProtoPirate](https://github.com/G4MEOVER18/ProtoPirate) — SubGHz Protocol Analyzer
+- [lora-ukfe](https://github.com/G4MEOVER18/lora-ukfe) — LoRa USB Army Knife Edition
+
+## Donations
+
+Wenn dir das Projekt gefallen hat, freue ich mich über eine Spende:
+
+[![PayPal](https://img.shields.io/badge/PayPal-Spenden-0070ba?style=flat-square&logo=paypal)](https://paypal.me/Freakbank1)
+[![Bitcoin](https://img.shields.io/badge/BTC-39vZWmnUwDReQ15BwqQXzyqVQ6U8LardEf-f7931a?style=flat-square&logo=bitcoin)](bitcoin:39vZWmnUwDReQ15BwqQXzyqVQ6U8LardEf)
+
+```
+BTC: 39vZWmnUwDReQ15BwqQXzyqVQ6U8LardEf
+```
+
 ---
+
+*Teil der G4MEOVER Security Toolchain · [github.com/G4MEOVER18](https://github.com/G4MEOVER18)*
 
 Built by **[G4MEOVER18](https://github.com/G4MEOVER18)** • 2026
