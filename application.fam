@@ -1,0 +1,11 @@
+App(
+    appid="jammer_suite",
+    name="Jammer Suite",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="jammer_app_main",
+    requires=["gui", "notifications"],
+    stack_size=4 * 1024,
+    fap_icon="jammer_10px.png",
+    fap_category="GPIO",
+    fap_version=(1, 0),
+)
