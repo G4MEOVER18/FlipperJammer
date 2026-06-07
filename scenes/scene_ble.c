@@ -22,11 +22,7 @@ static void ble_config_enter_cb(void* context, uint32_t index) {
         app->active_module = SceneBleRun;
         scene_manager_next_scene(app->scene_manager, SceneDuration);
     } else if(index == BleCfgStart) {
-        if(!app->hw_nrf24) {
-            app->info_text = INFO_BLE;
-            scene_manager_next_scene(app->scene_manager, SceneInfo);
-            return;
-        }
+        // Start trotz fehlgeschlagener Detection erlauben
         scene_manager_next_scene(app->scene_manager, SceneBleRun);
     } else if(index == BleCfgInfo) {
         app->info_text = INFO_BLE;

@@ -54,12 +54,8 @@ static void nrf24_config_enter(void* context, uint32_t index) {
         app->active_module = SceneNrf24Run;
         scene_manager_next_scene(app->scene_manager, SceneDuration);
     } else if(index == Nrf24CfgStart) {
-        // Sicherheit: bei fehlender HW Info-Page statt Crash zeigen
-        if(!app->hw_nrf24) {
-            app->info_text = INFO_NRF24;
-            scene_manager_next_scene(app->scene_manager, SceneInfo);
-            return;
-        }
+        // Start trotz fehlgeschlagener Detection erlauben — manche Module
+        // antworten nicht auf den Pruef-Read aber funktionieren beim Jamming
         scene_manager_next_scene(app->scene_manager, SceneNrf24Run);
     } else if(index == Nrf24CfgInfo) {
         app->info_text = INFO_NRF24;

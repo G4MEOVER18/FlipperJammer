@@ -1,6 +1,24 @@
 #include "nrf24_jam.h"
 #include "nrf24_spi.h"
 #include <furi.h>
+#include <furi_hal_power.h>
+
+static bool s_otg_by_jam = false;
+
+static void nrf24_jam_power_on(void) {
+    if(!furi_hal_power_is_otg_enabled()) {
+        furi_hal_power_enable_otg();
+        furi_delay_ms(20); /* NRF24 power-up */
+        s_otg_by_jam = true;
+    }
+}
+
+static void nrf24_jam_power_off(void) {
+    if(s_otg_by_jam && furi_hal_power_is_otg_enabled()) {
+        furi_hal_power_disable_otg();
+        s_otg_by_jam = false;
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /*  Channel tables                                                      */
@@ -106,6 +124,10 @@ void nrf24_jam_start(Nrf24JamMode mode, uint8_t power) {
     s.current_ch = cs->channels[0];
     s.running    = true;
 
+    /* OTG-5V einschalten — E01C-ML01SP4 und PA+LNA Module brauchen mehr
+       als die 3.3V vom GPIO-Pin (bis 130mA bei +20dBm) */
+    nrf24_jam_power_on();
+
     nrf24_spi_init();
 
     /* Constant Carrier Mode aktivieren:
@@ -143,6 +165,7 @@ void nrf24_jam_stop(void) {
     nrf24_ce_set(false);
     nrf24_write_reg(NRF24_REG_RF_SETUP, NRF24_RF_SETUP_2MBPS);
     nrf24_spi_deinit();
+    nrf24_jam_power_off();
 }
 
 uint8_t nrf24_jam_current_channel(void) {
