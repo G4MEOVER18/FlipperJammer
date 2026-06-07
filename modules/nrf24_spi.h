@@ -6,11 +6,14 @@
 /*  NRF24L01+ GPIO pin mapping (REK5Lab connector)                     */
 /* ------------------------------------------------------------------ */
 /* Adjust these to match your actual wiring */
-#define NRF24_CE_PIN    &gpio_ext_pa7
-#define NRF24_CSN_PIN   &gpio_ext_pa4
-#define NRF24_SCK_PIN   &gpio_ext_pb3
-#define NRF24_MOSI_PIN  &gpio_ext_pb2
-#define NRF24_MISO_PIN  &gpio_swclk   /* PB4 = SWCLK auf Flipper Zero GPIO-Header */
+/* Standard Flipper Zero NRF24 Pinout (kompatibel mit vad7/nrf24scan, nrf24mousejacker etc.)
+   Flipper GPIO Header:  CE=Pin6(PB2)  CSN=Pin4(PA4)  SCK=Pin5(PB3)
+                         MOSI=Pin2(PA7) MISO=Pin3(PA6) */
+#define NRF24_CE_PIN    &gpio_ext_pb2   /* Pin 6 */
+#define NRF24_CSN_PIN   &gpio_ext_pa4   /* Pin 4 */
+#define NRF24_SCK_PIN   &gpio_ext_pb3   /* Pin 5 */
+#define NRF24_MOSI_PIN  &gpio_ext_pa7   /* Pin 2 */
+#define NRF24_MISO_PIN  &gpio_ext_pa6   /* Pin 3 */
 
 /* ------------------------------------------------------------------ */
 /*  NRF24L01+ Register Map                                             */
