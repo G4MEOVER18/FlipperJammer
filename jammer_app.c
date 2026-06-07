@@ -162,6 +162,7 @@ JammerApp* jammer_app_alloc(void) {
     app->submenu  = submenu_alloc();
     app->var_list = variable_item_list_alloc();
     app->widget   = widget_alloc();
+    app->text_box = text_box_alloc();
 
     view_dispatcher_add_view(
         app->view_dispatcher, ViewSubmenu, submenu_get_view(app->submenu));
@@ -169,6 +170,8 @@ JammerApp* jammer_app_alloc(void) {
         app->view_dispatcher, ViewVarList, variable_item_list_get_view(app->var_list));
     view_dispatcher_add_view(
         app->view_dispatcher, ViewWidget, widget_get_view(app->widget));
+    view_dispatcher_add_view(
+        app->view_dispatcher, ViewTextBox, text_box_get_view(app->text_box));
 
     /* Attach dispatcher to GUI */
     view_dispatcher_attach_to_gui(
@@ -194,10 +197,12 @@ void jammer_app_free(JammerApp* app) {
     view_dispatcher_remove_view(app->view_dispatcher, ViewSubmenu);
     view_dispatcher_remove_view(app->view_dispatcher, ViewVarList);
     view_dispatcher_remove_view(app->view_dispatcher, ViewWidget);
+    view_dispatcher_remove_view(app->view_dispatcher, ViewTextBox);
 
     submenu_free(app->submenu);
     variable_item_list_free(app->var_list);
     widget_free(app->widget);
+    text_box_free(app->text_box);
 
     view_dispatcher_free(app->view_dispatcher);
     scene_manager_free(app->scene_manager);

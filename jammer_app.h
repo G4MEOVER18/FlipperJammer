@@ -9,6 +9,7 @@
 #include <gui/modules/submenu.h>
 #include <gui/modules/variable_item_list.h>
 #include <gui/modules/widget.h>
+#include <gui/modules/text_box.h>
 #include <notification/notification_messages.h>
 
 /* ------------------------------------------------------------------ */
@@ -45,6 +46,7 @@ typedef enum {
     ViewSubmenu,
     ViewVarList,
     ViewWidget,
+    ViewTextBox,
     ViewCount,
 } JammerView;
 
@@ -113,6 +115,7 @@ typedef struct {
     Submenu*          submenu;
     VariableItemList* var_list;
     Widget*           widget;
+    TextBox*          text_box;
 
     /* SubGHz config */
     SubGhzMode    subghz_mode;
