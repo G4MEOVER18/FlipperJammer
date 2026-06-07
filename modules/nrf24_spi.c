@@ -33,13 +33,23 @@ static inline bool miso_read(void) {
 }
 
 /* Transfer one byte MSB-first, SPI Mode 0 */
+/* Bit-bang SPI Mode 0: MOSI vor SCK-Rising-Edge setzen,
+   MISO am Rising-Edge sampeln. NRF24 braucht >50ns setup-time. */
+static inline void nrf24_spi_nop_delay(void) {
+    /* ~1µs Delay reicht für NRF24 bei 64MHz STM32WB55 */
+    for(volatile int i = 0; i < 8; i++) { __asm__ volatile("nop"); }
+}
+
 static uint8_t spi_xfer(uint8_t out) {
     uint8_t in = 0;
     for(int i = 7; i >= 0; i--) {
         mosi_write((out >> i) & 1);
+        nrf24_spi_nop_delay();
         sck_high();
+        nrf24_spi_nop_delay();
         in = (uint8_t)((in << 1) | miso_read());
         sck_low();
+        nrf24_spi_nop_delay();
     }
     return in;
 }
@@ -140,11 +150,36 @@ void nrf24_pulse_ce(void) {
 }
 
 bool nrf24_check_connected(void) {
-    nrf24_spi_init();
-    // Schreibe Testwert 0x2A in RF_CH, lies zurück
-    // Wenn MISO floating → liest 0xFF (Pull-Up) statt 0x2A → nicht verbunden
-    nrf24_write_reg(NRF24_REG_RF_CH, 0x2A);
-    uint8_t val = nrf24_read_reg(NRF24_REG_RF_CH);
-    nrf24_spi_deinit();
-    return (val == 0x2A);
+    // Minimal-Init OHNE PWR_UP (kein LED-Flash, kein PA-Boost)
+    furi_hal_gpio_init(NRF24_CE_PIN,   GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh);
+    furi_hal_gpio_init(NRF24_CSN_PIN,  GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh);
+    furi_hal_gpio_init(NRF24_SCK_PIN,  GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh);
+    furi_hal_gpio_init(NRF24_MOSI_PIN, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh);
+    furi_hal_gpio_init(NRF24_MISO_PIN, GpioModeInput,          GpioPullUp, GpioSpeedVeryHigh);
+    ce_low();
+    csn_high();
+    sck_low();
+    furi_delay_ms(5);
+
+    // Schreibe & lies SETUP_AW (0x03) — Reset-Wert ist 0x03 (5-byte address)
+    // Test 1: Lies SETUP_AW direkt — sollte 0x03 sein wenn NRF24 antwortet
+    uint8_t aw = nrf24_read_reg(NRF24_REG_SETUP_AW);
+    bool ok = (aw == 0x03 || aw == 0x02 || aw == 0x01); // gueltig: 3/4/5 bytes
+
+    // Test 2: Write/Read-Back auf RF_CH (verifiziert SPI in beide Richtungen)
+    if(ok) {
+        nrf24_write_reg(NRF24_REG_RF_CH, 0x2A);
+        uint8_t rb1 = nrf24_read_reg(NRF24_REG_RF_CH);
+        nrf24_write_reg(NRF24_REG_RF_CH, 0x55);
+        uint8_t rb2 = nrf24_read_reg(NRF24_REG_RF_CH);
+        ok = (rb1 == 0x2A) && (rb2 == 0x55);
+    }
+
+    // Pins zurücksetzen (NICHT deinit, sonst Power-Cycle = LED-Flash)
+    furi_hal_gpio_init(NRF24_CE_PIN,   GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(NRF24_CSN_PIN,  GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(NRF24_SCK_PIN,  GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(NRF24_MOSI_PIN, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(NRF24_MISO_PIN, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    return ok;
 }
