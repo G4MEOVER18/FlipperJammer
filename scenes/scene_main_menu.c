@@ -73,7 +73,7 @@ void jammer_scene_MainMenu_on_enter(void* context) {
     snprintf(ble_label, sizeof(ble_label), "BLE Jammer%s",
         app->hw_nrf24 ? " [OK]" : "");
     submenu_add_item(app->submenu, ble_label,        MainMenuBle,     main_menu_callback, app);
-    submenu_add_item(app->submenu, "WiFi Jammer",    MainMenuWifi,    main_menu_callback, app);
+    submenu_add_item(app->submenu, "WiFi Deauth (L2)",MainMenuWifi,    main_menu_callback, app);
     submenu_add_item(app->submenu, "IR Jammer",      MainMenuIr,      main_menu_callback, app);
     submenu_add_item(app->submenu, "RFID / NFC",     MainMenuRfidNfc, main_menu_callback, app);
     submenu_add_item(app->submenu, "USB Fuzzer",     MainMenuUsb,     main_menu_callback, app);

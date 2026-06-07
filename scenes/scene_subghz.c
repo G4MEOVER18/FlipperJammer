@@ -39,6 +39,7 @@ typedef enum {
     SubGhzCfgSource,
     SubGhzCfgDuration,
     SubGhzCfgStart,
+    SubGhzCfgInfo,
 } SubGhzCfgIndex;
 
 static void subghz_config_enter(void* context, uint32_t index) {
@@ -48,6 +49,9 @@ static void subghz_config_enter(void* context, uint32_t index) {
         scene_manager_next_scene(app->scene_manager, SceneDuration);
     } else if(index == SubGhzCfgStart) {
         scene_manager_next_scene(app->scene_manager, SceneSubGhzRun);
+    } else if(index == SubGhzCfgInfo) {
+        app->info_text = INFO_SUBGHZ;
+        scene_manager_next_scene(app->scene_manager, SceneInfo);
     }
 }
 
@@ -78,6 +82,9 @@ void jammer_scene_SubGhzConfig_on_enter(void* context) {
 
     /* Start */
     variable_item_list_add(app->var_list, ">> START <<", 1, NULL, app);
+
+    /* Info */
+    variable_item_list_add(app->var_list, "? Modul / Was jammt?", 1, NULL, app);
 
     variable_item_list_set_enter_callback(app->var_list, subghz_config_enter, app);
 

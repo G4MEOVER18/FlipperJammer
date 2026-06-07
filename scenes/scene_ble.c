@@ -1,6 +1,7 @@
 #include "../jammer_app.h"
 #include "scenes.h"
 #include "../modules/ble_jam.h"
+#include "../resources/info_texts.h"
 #include <stdio.h>
 
 /* ------------------------------------------------------------------ */
@@ -8,9 +9,11 @@
 /* ------------------------------------------------------------------ */
 
 typedef enum {
-    BleCfgInfo = 0,
+    BleCfgModul = 0,
     BleCfgDuration,
     BleCfgStart,
+    BleCfgInfo,
+    BleCfgInfoCannot,
 } BleCfgIndex;
 
 static void ble_config_enter_cb(void* context, uint32_t index) {
@@ -20,6 +23,12 @@ static void ble_config_enter_cb(void* context, uint32_t index) {
         scene_manager_next_scene(app->scene_manager, SceneDuration);
     } else if(index == BleCfgStart) {
         scene_manager_next_scene(app->scene_manager, SceneBleRun);
+    } else if(index == BleCfgInfo) {
+        app->info_text = INFO_BLE;
+        scene_manager_next_scene(app->scene_manager, SceneInfo);
+    } else if(index == BleCfgInfoCannot) {
+        app->info_text = INFO_BLE_CANNOTJAM;
+        scene_manager_next_scene(app->scene_manager, SceneInfo);
     }
 }
 
@@ -37,6 +46,8 @@ void jammer_scene_BleConfig_on_enter(void* context) {
 
     variable_item_list_add(app->var_list, "Dauer waehlen...", 1, NULL, app);
     variable_item_list_add(app->var_list, ">> START <<",      1, NULL, app);
+    variable_item_list_add(app->var_list, "? Was jammt BLE?",  1, NULL, app);
+    variable_item_list_add(app->var_list, "? Was NICHT?",      1, NULL, app);
 
     variable_item_list_set_enter_callback(app->var_list, ble_config_enter_cb, app);
     view_dispatcher_switch_to_view(app->view_dispatcher, ViewVarList);

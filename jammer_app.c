@@ -30,8 +30,22 @@ void jammer_hw_detect(JammerApp* app) {
         app->subghz_external = true;
     }
 
-    // --- NRF24 prüfen (3.3V GPIO, kein OTG nötig) ---
+    // --- NRF24 prüfen ---
+    // Versuch 1: ohne OTG (3.3V von GPIO-VCC)
     app->hw_nrf24 = nrf24_check_connected();
+
+    // Versuch 2: mit OTG-Strom (manche Multiboards brauchen 5V)
+    if(!app->hw_nrf24) {
+        bool otg2_was_on = furi_hal_power_is_otg_enabled();
+        if(!otg2_was_on) {
+            furi_hal_power_enable_otg();
+            furi_delay_ms(30);
+        }
+        app->hw_nrf24 = nrf24_check_connected();
+        if(!app->hw_nrf24 && !otg2_was_on) {
+            furi_hal_power_disable_otg();
+        }
+    }
 }
 
 /* ------------------------------------------------------------------ */

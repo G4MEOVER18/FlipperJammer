@@ -1,6 +1,7 @@
 #include "../jammer_app.h"
 #include "scenes.h"
 #include "../modules/nrf24_jam.h"
+#include "../resources/info_texts.h"
 #include <stdio.h>
 
 static const char* nrf24_mode_labels[] = {
@@ -25,9 +26,12 @@ static void nrf24_mode_change(VariableItem* item) {
 }
 
 typedef enum {
-    Nrf24CfgMode = 0,
+    Nrf24CfgModul = 0,
+    Nrf24CfgMode,
     Nrf24CfgDuration,
     Nrf24CfgStart,
+    Nrf24CfgInfo,
+    Nrf24CfgInfoCannot,
 } Nrf24CfgIndex;
 
 static void nrf24_config_enter(void* context, uint32_t index) {
@@ -37,6 +41,12 @@ static void nrf24_config_enter(void* context, uint32_t index) {
         scene_manager_next_scene(app->scene_manager, SceneDuration);
     } else if(index == Nrf24CfgStart) {
         scene_manager_next_scene(app->scene_manager, SceneNrf24Run);
+    } else if(index == Nrf24CfgInfo) {
+        app->info_text = INFO_NRF24;
+        scene_manager_next_scene(app->scene_manager, SceneInfo);
+    } else if(index == Nrf24CfgInfoCannot) {
+        app->info_text = INFO_NRF24_CANNOTJAM;
+        scene_manager_next_scene(app->scene_manager, SceneInfo);
     }
 }
 
@@ -59,6 +69,8 @@ void jammer_scene_Nrf24Config_on_enter(void* context) {
 
     variable_item_list_add(app->var_list, "Dauer waehlen...", 1, NULL, app);
     variable_item_list_add(app->var_list, ">> START <<",      1, NULL, app);
+    variable_item_list_add(app->var_list, "? Was jammt NRF24?",  1, NULL, app);
+    variable_item_list_add(app->var_list, "? Was NICHT?",        1, NULL, app);
 
     variable_item_list_set_enter_callback(app->var_list, nrf24_config_enter, app);
     view_dispatcher_switch_to_view(app->view_dispatcher, ViewVarList);

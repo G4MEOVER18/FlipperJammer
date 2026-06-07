@@ -1,96 +1,169 @@
 #pragma once
 
 /* ------------------------------------------------------------------ */
-/*  Info texts — displayed in the Info scene for each module            */
+/*  Info texts — pro Modul: Modul-Anforderung + was jammt / was nicht  */
 /* ------------------------------------------------------------------ */
 
 #define INFO_MAIN \
-    "Jammer Suite v1.0\n" \
-    "Momentum Firmware FAP\n" \
-    "---------------------\n" \
-    "Alle Module nutzen die\n" \
-    "eingebaute Hardware.\n" \
-    "NRF24+BLE: REK5Lab\n" \
-    "WiFi: ESP32 via UART\n" \
-    "IR Blaster: Rabbit Labs\n" \
-    "Nur fuer eigene Netze!"
+    "Jammer Suite v1.1\n" \
+    "MODUL-UEBERSICHT:\n" \
+    "SubGHz: CC1101 ext\n" \
+    " -> 315/433/868/915 MHz\n" \
+    "NRF24: 2.4GHz RF-Jam\n" \
+    " -> BLE/BT/WiFi/Drone\n" \
+    "ESP32: Deauth (Layer2)\n" \
+    " -> kein echtes Jammen!"
 
 #define INFO_SUBGHZ \
-    "SubGHz Jammer\n" \
-    "Stoert 433/868/315/915\n" \
-    "MHz Funksignale.\n" \
-    "Carrier: Dauersignal\n" \
-    "Noise: Rauschburst\n" \
-    "Sweep: Freq. Sweep\n" \
-    "REK5Lab: ext. Antenne\n" \
-    "Nur auf eigenen Geraeten!"
+    "MODUL: CC1101\n" \
+    "Intern ODER REK5Lab ext\n" \
+    "---\n" \
+    "JAMMT: Garagentore,\n" \
+    "Funkschluessel, 433MHz\n" \
+    "Sensoren, ISM-Band\n" \
+    "---\n" \
+    "EMPFEHLUNG: ext CC1101\n" \
+    "= mehr Reichweite+Leistg"
 
 #define INFO_NRF24 \
-    "NRF24 2.4GHz Jammer\n" \
-    "Stoert 2.4 GHz Bänder.\n" \
-    "Modus waehlen:\n" \
-    "ALL: komplettes 2.4GHz\n" \
-    "BT: Bluetooth Classic\n" \
-    "Zigbee: 802.15.4\n" \
-    "WiFi 1/6/11: WLAN Ch.\n" \
-    "Logitech: Unifying"
+    "MODUL: NRF24L01+\n" \
+    "PA+LNA Modul empfohlen!\n" \
+    "---\n" \
+    "JAMMT: Drohnen (DSM2/\n" \
+    "DSMX/FlySky/FrSky),\n" \
+    "Maus+Tastatur (Logitech\n" \
+    "Unifying, 2.4GHz Dongle)\n" \
+    "Zigbee, Bluetooth Classic\n" \
+    "Standard NRF: ~1-3m"
+
+#define INFO_NRF24_CANNOTJAM \
+    "NRF24 KANN NICHT:\n" \
+    "WiFi 5 GHz (5G-Band)\n" \
+    "LTE / GSM / DECT\n" \
+    "DJI OcuSync 3 (robust)\n" \
+    "---\n" \
+    "PA+LNA Modul:\n" \
+    "+20dBm statt 0dBm\n" \
+    "= 100x mehr Leistung\n" \
+    "Reichweite ~10-30m"
 
 #define INFO_BLE \
-    "BLE Jammer\n" \
-    "Stoert Bluetooth Low\n" \
-    "Energy Werbung.\n" \
-    "Kanaele: 37/38/39\n" \
-    "(2402/2426/2480 MHz)\n" \
-    "NRF24L01+ via REK5Lab\n" \
-    "2 Mbps, max. Leistung\n" \
-    "1 ms/Kanal Rotation"
+    "MODUL: NRF24L01+\n" \
+    "Pins: CE=PA7 CSN=PA4\n" \
+    "SCK=PB3 MOSI=PB2\n" \
+    "MISO=SWCLK (PB4)\n" \
+    "---\n" \
+    "JAMMT: BLE Advertising\n" \
+    "Kanaele 37/38/39\n" \
+    "BT Low Energy Geraete,\n" \
+    "Beacons, BLE Sensoren"
+
+#define INFO_BLE_CANNOTJAM \
+    "BLE KANN NICHT:\n" \
+    "BT Classic Audio (A2DP)\n" \
+    "BT HID mit Verbindung\n" \
+    "(nur neue Verbindungen!)\n" \
+    "---\n" \
+    "WIRKUNG:\n" \
+    "Neue BLE-Verbindungen\n" \
+    "werden verhindert.\n" \
+    "Bestehende bleiben."
 
 #define INFO_WIFI \
-    "WiFi Deauth Jammer\n" \
-    "Sendet 802.11 Deauth\n" \
-    "Frames via ESP32.\n" \
-    "Verbindung: UART\n" \
-    "115200 Baud (PA6/PA7)\n" \
-    "Kanal 1-13 oder ALL\n" \
-    "Broadcast oder Ziel-AP\n" \
-    "ESP32 Sketch noetig!"
+    "MODUL: ESP32 Marauder\n" \
+    "UART: PA2(TX) PA3(RX)\n" \
+    "Baud: 115200\n" \
+    "---\n" \
+    "KEIN ECHTES JAMMEN!\n" \
+    "Sendet Deauth-Frames\n" \
+    "(Layer 2, Protokollebene)\n" \
+    "---\n" \
+    "FUNKTIONIERT NUR gegen:"
+
+#define INFO_WIFI2 \
+    "WiFi Deauth wirkt NUR:\n" \
+    "Alte Router/Geraete\n" \
+    "ohne 802.11w (PMF)\n" \
+    "---\n" \
+    "IMMUN (kein Effekt):\n" \
+    "WPA3 (Pflicht: PMF)\n" \
+    "802.11w aktiviert\n" \
+    "Alle mod. Smartphones\n" \
+    "Fuer echte WiFi-Stoerung"
+
+#define INFO_WIFI3 \
+    "Echtes WiFi-Jammen:\n" \
+    "-> NRF24 ALL-Modus!\n" \
+    "-> Stoert 2.4GHz RF\n" \
+    "   physikalisch\n" \
+    "-> Kein Geraet immun\n" \
+    "-> PA+LNA fuer Reichweite\n" \
+    "---\n" \
+    "5GHz WiFi: NICHT moegl.\n" \
+    "mit aktuellem Hardware"
 
 #define INFO_IR \
-    "IR Jammer\n" \
-    "Stoert IR-Fernbed.\n" \
-    "Noise: Rauschpulse\n" \
-    "TV Codes: Power-Cmds\n" \
-    "NEC/Samsung/Sony Flood\n" \
-    "Random RAW Sequenzen\n" \
-    "Intern: eingebaute LED\n" \
-    "Extern: Rabbit Blaster"
+    "MODUL: Intern ODER\n" \
+    "Rabbit Labs IR Blaster\n" \
+    "Ext: GPIO PA6\n" \
+    "---\n" \
+    "JAMMT: IR-Fernbedienungen\n" \
+    "TV, Beamer, Verstaerker\n" \
+    "---\n" \
+    "Intern: ~2-5m\n" \
+    "Ext Blaster: ~10-20m"
 
 #define INFO_RFID \
-    "RFID Jammer / Spoofer\n" \
-    "125 kHz (EM4100/HID)\n" \
-    "Jammer: Carrier aktiv\n" \
+    "MODUL: Eingebaut\n" \
+    "125 kHz LF-RFID\n" \
+    "---\n" \
+    "JAMMT: LF-Kartenleser\n" \
+    "EM4100, HID, Indala\n" \
+    "Zutrittskontrollsysteme\n" \
+    "---\n" \
     "Spoofer: Tag emulieren\n" \
-    "Fuzzer: Zufalls-IDs\n" \
-    "Facility + Card-ID\n" \
-    "Typen: EM4100, HID,\n" \
-    "Indala, Custom"
+    "Fuzzer: Zufalls-IDs"
 
 #define INFO_NFC \
-    "NFC Jammer / Spoofer\n" \
-    "13.56 MHz ISO14443\n" \
-    "Jammer: Feld aktiv\n" \
+    "MODUL: Eingebaut\n" \
+    "13.56 MHz HF-NFC\n" \
+    "---\n" \
+    "JAMMT: NFC-Kartenleser\n" \
+    "MIFARE Classic/Ultralight\n" \
+    "ISO14443A Geraete\n" \
+    "---\n" \
     "Spoofer: UID emulieren\n" \
-    "Fuzzer: Zufalls-UIDs\n" \
-    "Typen: MIFARE Cl./UL\n" \
-    "ISO14443A Raw\n" \
-    "Preset UIDs waehlbar"
+    "Fuzzer: Zufalls-UIDs"
 
 #define INFO_USB_FUZZ \
-    "USB Fuzzer\n" \
-    "Testet USB HID Host.\n" \
-    "HID Flood: Tastatur\n" \
+    "MODUL: Eingebaut USB\n" \
+    "Kein externes Modul!\n" \
+    "---\n" \
+    "TESTET: USB HID Hosts\n" \
+    "HID Flood: Tastatur-\n" \
+    "flood auf verbundenem PC\n" \
     "Malformed: inv. Reports\n" \
-    "Descriptor: Neuenum.\n" \
-    "Reconnect: USB Schleife\n" \
-    "Standard CDC danach\n" \
-    "wiederhergestellt"
+    "Reconnect: USB-Schleife\n" \
+    "Nur auf eigenem Geraet!"
+
+#define INFO_DRONE \
+    "DROHNEN 2.4GHz:\n" \
+    "MODUL: NRF24L01+\n" \
+    "PA+LNA NOETIG!\n" \
+    "---\n" \
+    "DSM2/DSMX (Spektrum)\n" \
+    "FlySky AFHDS/AFHDS2A\n" \
+    "FrSky D/X/XD\n" \
+    "DEVO/Walkera\n" \
+    "-> NRF24 ALL-Modus"
+
+#define INFO_PERIPHERALS \
+    "MAUS/TASTATUR 2.4GHz:\n" \
+    "MODUL: NRF24L01+\n" \
+    "---\n" \
+    "Logitech Unifying:\n" \
+    "-> NRF24 Logitech-Modus\n" \
+    "Microsoft/generisch:\n" \
+    "-> NRF24 ALL-Modus\n" \
+    "---\n" \
+    "Reichweite: 1-5m (std)"

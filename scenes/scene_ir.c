@@ -1,6 +1,7 @@
 #include "../jammer_app.h"
 #include "scenes.h"
 #include "../modules/ir_jam.h"
+#include "../resources/info_texts.h"
 #include <stdio.h>
 
 static const char* ir_mode_labels[] = {
@@ -36,6 +37,7 @@ typedef enum {
     IrCfgLed,
     IrCfgDuration,
     IrCfgStart,
+    IrCfgInfo,
 } IrCfgIndex;
 
 static void ir_config_enter(void* context, uint32_t index) {
@@ -45,6 +47,9 @@ static void ir_config_enter(void* context, uint32_t index) {
         scene_manager_next_scene(app->scene_manager, SceneDuration);
     } else if(index == IrCfgStart) {
         scene_manager_next_scene(app->scene_manager, SceneIrRun);
+    } else if(index == IrCfgInfo) {
+        app->info_text = INFO_IR;
+        scene_manager_next_scene(app->scene_manager, SceneInfo);
     }
 }
 
@@ -65,6 +70,7 @@ void jammer_scene_IrConfig_on_enter(void* context) {
 
     variable_item_list_add(app->var_list, "Dauer waehlen...", 1, NULL, app);
     variable_item_list_add(app->var_list, ">> START <<",      1, NULL, app);
+    variable_item_list_add(app->var_list, "? Modul / Reichweite", 1, NULL, app);
 
     variable_item_list_set_enter_callback(app->var_list, ir_config_enter, app);
     view_dispatcher_switch_to_view(app->view_dispatcher, ViewVarList);

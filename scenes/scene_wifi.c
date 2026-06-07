@@ -1,6 +1,7 @@
 #include "../jammer_app.h"
 #include "scenes.h"
 #include "../modules/wifi_jam.h"
+#include "../resources/info_texts.h"
 #include <stdio.h>
 
 static const char* wifi_ch_labels[] = {
@@ -27,10 +28,14 @@ static void wifi_mode_change(VariableItem* item) {
 }
 
 typedef enum {
-    WifiCfgChannel = 0,
+    WifiCfgModul = 0,
+    WifiCfgChannel,
     WifiCfgMode,
     WifiCfgDuration,
     WifiCfgStart,
+    WifiCfgInfo,
+    WifiCfgInfo2,
+    WifiCfgInfo3,
 } WifiCfgIndex;
 
 static void wifi_config_enter(void* context, uint32_t index) {
@@ -40,6 +45,15 @@ static void wifi_config_enter(void* context, uint32_t index) {
         scene_manager_next_scene(app->scene_manager, SceneDuration);
     } else if(index == WifiCfgStart) {
         scene_manager_next_scene(app->scene_manager, SceneWifiRun);
+    } else if(index == WifiCfgInfo) {
+        app->info_text = INFO_WIFI;
+        scene_manager_next_scene(app->scene_manager, SceneInfo);
+    } else if(index == WifiCfgInfo2) {
+        app->info_text = INFO_WIFI2;
+        scene_manager_next_scene(app->scene_manager, SceneInfo);
+    } else if(index == WifiCfgInfo3) {
+        app->info_text = INFO_WIFI3;
+        scene_manager_next_scene(app->scene_manager, SceneInfo);
     }
 }
 
@@ -48,7 +62,7 @@ void jammer_scene_WifiConfig_on_enter(void* context) {
     VariableItem* item;
 
     variable_item_list_reset(app->var_list);
-    variable_item_list_set_header(app->var_list, "WiFi Konfiguration");
+    variable_item_list_set_header(app->var_list, "WiFi Deauth (Layer 2)");
 
     // Modul-Info (read-only)
     VariableItem* modul_item = variable_item_list_add(app->var_list, "Modul", 1, NULL, app);
@@ -64,6 +78,9 @@ void jammer_scene_WifiConfig_on_enter(void* context) {
 
     variable_item_list_add(app->var_list, "Dauer waehlen...", 1, NULL, app);
     variable_item_list_add(app->var_list, ">> START <<",      1, NULL, app);
+    variable_item_list_add(app->var_list, "? Modul / Funktion",  1, NULL, app);
+    variable_item_list_add(app->var_list, "? Wer ist immun?",    1, NULL, app);
+    variable_item_list_add(app->var_list, "? Echtes WiFi-Jammen",1, NULL, app);
 
     variable_item_list_set_enter_callback(app->var_list, wifi_config_enter, app);
     view_dispatcher_switch_to_view(app->view_dispatcher, ViewVarList);
@@ -100,7 +117,7 @@ static void wifi_run_update_widget(JammerApp* app) {
         snprintf(line_time, sizeof(line_time), "Restzeit: %lu s", (unsigned long)remaining);
     }
 
-    widget_add_string_element(app->widget, 64,  2, AlignCenter, AlignTop, FontPrimary,   "WiFi JAMMER AKTIV");
+    widget_add_string_element(app->widget, 64,  2, AlignCenter, AlignTop, FontPrimary,   "WiFi DEAUTH (L2)");
     widget_add_string_element(app->widget,  2, 18, AlignLeft,   AlignTop, FontSecondary, line1);
     widget_add_string_element(app->widget,  2, 30, AlignLeft,   AlignTop, FontSecondary, "Multiboard ESP32 (PA2/PA3)");
     widget_add_string_element(app->widget,  2, 42, AlignLeft,   AlignTop, FontSecondary, line_time);
