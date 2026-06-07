@@ -18,6 +18,7 @@
 
 typedef enum {
     SceneMainMenu,
+    SceneNrf24Diag,
     SceneSubGhzConfig,
     SceneSubGhzRun,
     SceneNrf24Config,

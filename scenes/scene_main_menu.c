@@ -10,6 +10,7 @@ typedef enum {
     MainMenuIr,
     MainMenuRfidNfc,
     MainMenuUsb,
+    MainMenuDiag,
     MainMenuInfo,
 } MainMenuIndex;
 
@@ -37,6 +38,9 @@ static void main_menu_callback(void* context, uint32_t index) {
         break;
     case MainMenuUsb:
         scene_manager_next_scene(app->scene_manager, SceneUsbFuzzerConfig);
+        break;
+    case MainMenuDiag:
+        scene_manager_next_scene(app->scene_manager, SceneNrf24Diag);
         break;
     case MainMenuInfo:
         app->info_text = INFO_MAIN;
@@ -78,6 +82,7 @@ void jammer_scene_MainMenu_on_enter(void* context) {
     submenu_add_item(app->submenu, "IR Jammer",      MainMenuIr,      main_menu_callback, app);
     submenu_add_item(app->submenu, "RFID / NFC",     MainMenuRfidNfc, main_menu_callback, app);
     submenu_add_item(app->submenu, "USB Fuzzer",     MainMenuUsb,     main_menu_callback, app);
+    submenu_add_item(app->submenu, "NRF24 Diagnose", MainMenuDiag,    main_menu_callback, app);
     submenu_add_item(app->submenu, "Info / Hilfe",   MainMenuInfo,    main_menu_callback, app);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, ViewSubmenu);

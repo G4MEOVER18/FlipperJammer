@@ -1,4 +1,5 @@
 ADD_SCENE(jammer, MainMenu,          MainMenu)
+ADD_SCENE(jammer, Nrf24Diag,         Nrf24Diag)
 ADD_SCENE(jammer, SubGhzConfig,      SubGhzConfig)
 ADD_SCENE(jammer, SubGhzRun,         SubGhzRun)
 ADD_SCENE(jammer, Nrf24Config,       Nrf24Config)
