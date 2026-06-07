@@ -135,7 +135,16 @@ void nrf24_write_tx_payload(const uint8_t* data, uint8_t len) {
 
 void nrf24_pulse_ce(void) {
     ce_high();
-    /* Tce >= 10 us */
     furi_delay_us(15);
     ce_low();
+}
+
+bool nrf24_check_connected(void) {
+    nrf24_spi_init();
+    // Schreibe Testwert 0x2A in RF_CH, lies zurück
+    // Wenn MISO floating → liest 0xFF (Pull-Up) statt 0x2A → nicht verbunden
+    nrf24_write_reg(NRF24_REG_RF_CH, 0x2A);
+    uint8_t val = nrf24_read_reg(NRF24_REG_RF_CH);
+    nrf24_spi_deinit();
+    return (val == 0x2A);
 }

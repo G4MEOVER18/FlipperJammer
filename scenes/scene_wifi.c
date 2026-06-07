@@ -50,6 +50,10 @@ void jammer_scene_WifiConfig_on_enter(void* context) {
     variable_item_list_reset(app->var_list);
     variable_item_list_set_header(app->var_list, "WiFi Konfiguration");
 
+    // Modul-Info (read-only)
+    VariableItem* modul_item = variable_item_list_add(app->var_list, "Modul", 1, NULL, app);
+    variable_item_set_current_value_text(modul_item, "ESP32 UART");
+
     item = variable_item_list_add(app->var_list, "Kanal", 14, wifi_ch_change, app);
     variable_item_set_current_value_index(item, app->wifi_channel);
     variable_item_set_current_value_text(item, wifi_ch_labels[app->wifi_channel]);
@@ -98,7 +102,7 @@ static void wifi_run_update_widget(JammerApp* app) {
 
     widget_add_string_element(app->widget, 64,  2, AlignCenter, AlignTop, FontPrimary,   "WiFi JAMMER AKTIV");
     widget_add_string_element(app->widget,  2, 18, AlignLeft,   AlignTop, FontSecondary, line1);
-    widget_add_string_element(app->widget,  2, 30, AlignLeft,   AlignTop, FontSecondary, "ESP32 Deauth via UART");
+    widget_add_string_element(app->widget,  2, 30, AlignLeft,   AlignTop, FontSecondary, "Multiboard ESP32 (PA2/PA3)");
     widget_add_string_element(app->widget,  2, 42, AlignLeft,   AlignTop, FontSecondary, line_time);
     widget_add_string_element(app->widget, 64, 55, AlignCenter, AlignTop, FontSecondary, "[BACK] Stopp");
 }

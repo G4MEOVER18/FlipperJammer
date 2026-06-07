@@ -21,6 +21,7 @@ typedef enum {
     SceneSubGhzRun,
     SceneNrf24Config,
     SceneNrf24Run,
+    SceneBleConfig,   // NEU: Konfiguration + Modul-Info für BLE
     SceneBleRun,
     SceneWifiConfig,
     SceneWifiRun,
@@ -137,6 +138,11 @@ typedef struct {
     DurationOption duration;
     uint32_t       duration_ms;  /* 0 = unlimited */
 
+    /* Hardware-Erkennung (gesetzt beim Start durch jammer_hw_detect) */
+    bool hw_ext_cc1101; // externer CC1101 via SubGHz-Treiber erkannt
+    bool hw_nrf24;      // NRF24-Modul via GPIO-SPI erkannt
+    // ESP32 (WiFi) wird immer als verfügbar angenommen
+
     /* Runtime */
     bool       running;
     FuriTimer* run_timer;
@@ -156,6 +162,9 @@ typedef struct {
 
 JammerApp* jammer_app_alloc(void);
 void       jammer_app_free(JammerApp* app);
+
+/* Hardware-Erkennung: ext CC1101 und NRF24 scannen, Flags in app setzen */
+void jammer_hw_detect(JammerApp* app);
 
 /* Timer callback — linked to run_timer */
 void jammer_timer_callback(void* context);

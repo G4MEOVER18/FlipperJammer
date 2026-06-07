@@ -47,6 +47,11 @@ void jammer_scene_Nrf24Config_on_enter(void* context) {
     variable_item_list_reset(app->var_list);
     variable_item_list_set_header(app->var_list, "NRF24 Konfiguration");
 
+    // Modul-Status anzeigen
+    item = variable_item_list_add(app->var_list, "Modul", 1, NULL, app);
+    variable_item_set_current_value_text(
+        item, app->hw_nrf24 ? "Multiboard OK" : "nicht erkannt");
+
     item = variable_item_list_add(
         app->var_list, "Modus", 7, nrf24_mode_change, app);
     variable_item_set_current_value_index(item, (uint8_t)app->nrf24_mode);
@@ -88,10 +93,11 @@ static void nrf24_run_update_widget(JammerApp* app) {
         snprintf(line_time, sizeof(line_time), "Restzeit: %lu s", (unsigned long)remaining);
     }
 
+    const char* modul_str = app->hw_nrf24 ? "Multiboard NRF24" : "NRF24 !nicht erkannt";
     widget_add_string_element(app->widget, 64, 2,  AlignCenter, AlignTop, FontPrimary,   "NRF24 AKTIV");
-    widget_add_string_element(app->widget, 2,  18, AlignLeft,   AlignTop, FontSecondary, nrf24_mode_labels[(uint8_t)app->nrf24_mode]);
-    widget_add_string_element(app->widget, 2,  30, AlignLeft,   AlignTop, FontSecondary, line_ch);
-    widget_add_string_element(app->widget, 2,  42, AlignLeft,   AlignTop, FontSecondary, line_time);
+    widget_add_string_element(app->widget, 2,  18, AlignLeft,   AlignTop, FontSecondary, modul_str);
+    widget_add_string_element(app->widget, 2,  30, AlignLeft,   AlignTop, FontSecondary, nrf24_mode_labels[(uint8_t)app->nrf24_mode]);
+    widget_add_string_element(app->widget, 2,  42, AlignLeft,   AlignTop, FontSecondary, line_ch);
     widget_add_string_element(app->widget, 64, 55, AlignCenter, AlignTop, FontSecondary, "[BACK] Stopp");
 }
 

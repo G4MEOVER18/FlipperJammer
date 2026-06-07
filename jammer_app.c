@@ -1,6 +1,38 @@
 #include "jammer_app.h"
 #include "scenes/scenes.h"
+#include "modules/nrf24_spi.h"
 #include <notification/notification.h>
+#include <lib/subghz/devices/devices.h>
+#include <applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h>
+#include <furi_hal_power.h>
+
+/* ------------------------------------------------------------------ */
+/*  Hardware-Erkennung                                                  */
+/* ------------------------------------------------------------------ */
+
+void jammer_hw_detect(JammerApp* app) {
+    // --- Ext CC1101 prüfen (mit kurzer OTG-Power) ---
+    bool otg_was_on = furi_hal_power_is_otg_enabled();
+    if(!otg_was_on) {
+        furi_hal_power_enable_otg();
+        furi_delay_ms(20); // CC1101 power-up
+    }
+    subghz_devices_init();
+    const SubGhzDevice* ext = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_EXT_NAME);
+    app->hw_ext_cc1101 = (ext != NULL) && subghz_devices_is_connect(ext);
+    subghz_devices_deinit();
+    if(!otg_was_on && !app->hw_ext_cc1101) {
+        furi_hal_power_disable_otg(); // OTG nur aktiv lassen wenn CC1101 gefunden
+    }
+
+    // Ext CC1101 gefunden → automatisch als Standard wählen
+    if(app->hw_ext_cc1101) {
+        app->subghz_external = true;
+    }
+
+    // --- NRF24 prüfen (3.3V GPIO, kein OTG nötig) ---
+    app->hw_nrf24 = nrf24_check_connected();
+}
 
 /* ------------------------------------------------------------------ */
 /*  Duration helper                                                     */
@@ -168,6 +200,9 @@ void jammer_app_free(JammerApp* app) {
 int32_t jammer_app_main(void* p) {
     UNUSED(p);
     JammerApp* app = jammer_app_alloc();
+
+    // Hardware beim Start erkennen
+    jammer_hw_detect(app);
 
     scene_manager_next_scene(app->scene_manager, SceneMainMenu);
     view_dispatcher_run(app->view_dispatcher);

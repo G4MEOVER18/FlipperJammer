@@ -72,3 +72,7 @@ void nrf24_write_tx_payload(const uint8_t* data, uint8_t len);
 
 /** Pulse CE pin to trigger a TX burst. */
 void nrf24_pulse_ce(void);
+
+/** Prüft ob ein NRF24-Modul physisch angeschlossen ist (GPIO-SPI Write/Read-Check).
+ *  Gibt true zurück wenn das Modul antwortet, false wenn nicht verbunden. */
+bool nrf24_check_connected(void);
