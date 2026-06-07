@@ -149,6 +149,10 @@ void nrf24_pulse_ce(void) {
     ce_low();
 }
 
+void nrf24_ce_set(bool high) {
+    if(high) ce_high(); else ce_low();
+}
+
 bool nrf24_check_connected(void) {
     // Minimal-Init OHNE PWR_UP (kein LED-Flash, kein PA-Boost)
     furi_hal_gpio_init(NRF24_CE_PIN,   GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh);

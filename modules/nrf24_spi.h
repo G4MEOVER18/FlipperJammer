@@ -44,6 +44,8 @@
 #define NRF24_RF_SETUP_1MBPS    0x00
 #define NRF24_RF_SETUP_2MBPS    0x08
 #define NRF24_RF_SETUP_PWR_MAX  0x06
+#define NRF24_RF_SETUP_CONT_WAVE 0x80   /* Continuous Carrier Mode */
+#define NRF24_RF_SETUP_PLL_LOCK  0x10   /* PLL lock fuer CONT_WAVE */
 
 /* ------------------------------------------------------------------ */
 /*  API                                                                 */
@@ -75,6 +77,9 @@ void nrf24_write_tx_payload(const uint8_t* data, uint8_t len);
 
 /** Pulse CE pin to trigger a TX burst. */
 void nrf24_pulse_ce(void);
+
+/** CE permanent HIGH setzen (Continuous Carrier Mode). */
+void nrf24_ce_set(bool high);
 
 /** Prüft ob ein NRF24-Modul physisch angeschlossen ist (GPIO-SPI Write/Read-Check).
  *  Gibt true zurück wenn das Modul antwortet, false wenn nicht verbunden. */

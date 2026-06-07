@@ -85,25 +85,11 @@ static void nrf24_jam_timer_cb(void* ctx) {
     s.current_ch = s.channels[s.ch_idx];
     s.ch_idx     = (s.ch_idx + 1) % s.ch_count;
 
-    /* Set channel */
+    /* Constant Carrier Mode: CE muss waehrend RF_CH-Wechsel LOW sein.
+       Sequence: CE low -> RF_CH = new -> CE high. */
+    nrf24_ce_set(false);
     nrf24_write_reg(NRF24_REG_RF_CH, s.current_ch);
-
-    /* Flush old payload */
-    nrf24_cmd(NRF24_CMD_FLUSH_TX);
-
-    /* Write 32 bytes of noise */
-    uint8_t noise[32];
-    uint32_t rng = furi_get_tick();
-    for(uint8_t i = 0; i < 32; i++) {
-        rng ^= (rng << 13);
-        rng ^= (rng >> 17);
-        rng ^= (rng << 5);
-        noise[i] = (uint8_t)(rng & 0xFF);
-    }
-    nrf24_write_tx_payload(noise, 32);
-
-    /* Pulse CE to transmit */
-    nrf24_pulse_ce();
+    nrf24_ce_set(true);
 }
 
 /* ------------------------------------------------------------------ */
@@ -122,12 +108,23 @@ void nrf24_jam_start(Nrf24JamMode mode, uint8_t power) {
 
     nrf24_spi_init();
 
-    // Power-Level via RF_SETUP Bits 1-2:
-    // 00 = -18 dBm, 01 = -12 dBm, 10 = -6 dBm, 11 = 0 dBm
-    // RF_DR_HIGH (Bit 3) = 1 fuer 2 Mbps
+    /* Constant Carrier Mode aktivieren:
+       RF_SETUP = CONT_WAVE | PLL_LOCK | RF_PWR
+       NRF24L01+ Datasheet 6.4: CONT_WAVE braucht PLL_LOCK gesetzt.
+       RF_DR egal (kein Daten-TX), aber 2MBPS schadet nicht. */
     uint8_t pwr_bits = (power & 0x03) << 1;
-    nrf24_write_reg(NRF24_REG_RF_SETUP, NRF24_RF_SETUP_2MBPS | pwr_bits);
+    uint8_t rf_setup = NRF24_RF_SETUP_CONT_WAVE
+                     | NRF24_RF_SETUP_PLL_LOCK
+                     | NRF24_RF_SETUP_2MBPS
+                     | pwr_bits;
+    nrf24_write_reg(NRF24_REG_RF_SETUP, rf_setup);
 
+    /* RF_CH initial setzen + CE HIGH starten */
+    nrf24_write_reg(NRF24_REG_RF_CH, s.current_ch);
+    furi_delay_us(140);  // Tpll = 130us
+    nrf24_ce_set(true);  // Carrier ist jetzt aktiv → LED leuchtet dauerhaft
+
+    /* Timer: nur Channel-Hopping, kein Payload */
     s.timer = furi_timer_alloc(nrf24_jam_timer_cb, FuriTimerTypePeriodic, NULL);
     furi_timer_start(s.timer, 2);
 }
@@ -142,6 +139,9 @@ void nrf24_jam_stop(void) {
         s.timer = NULL;
     }
 
+    /* CE LOW + Cont-Carrier deaktivieren */
+    nrf24_ce_set(false);
+    nrf24_write_reg(NRF24_REG_RF_SETUP, NRF24_RF_SETUP_2MBPS);
     nrf24_spi_deinit();
 }
 

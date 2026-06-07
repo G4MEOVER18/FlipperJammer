@@ -20,20 +20,10 @@ static void ble_jam_timer_cb(void* ctx) {
     uint8_t ch = ble_channels[s.ch_idx];
     s.ch_idx   = (s.ch_idx + 1) % 3;
 
+    /* Const Carrier hop: CE low -> RF_CH -> CE high */
+    nrf24_ce_set(false);
     nrf24_write_reg(NRF24_REG_RF_CH, ch);
-    nrf24_cmd(NRF24_CMD_FLUSH_TX);
-
-    /* 32-byte noise payload */
-    uint8_t noise[32];
-    uint32_t rng = furi_get_tick() ^ 0xBEEF0000UL;
-    for(uint8_t i = 0; i < 32; i++) {
-        rng ^= rng << 13;
-        rng ^= rng >> 17;
-        rng ^= rng << 5;
-        noise[i] = (uint8_t)rng;
-    }
-    nrf24_write_tx_payload(noise, 32);
-    nrf24_pulse_ce();
+    nrf24_ce_set(true);
 }
 
 void ble_jam_start(void) {
@@ -44,8 +34,14 @@ void ble_jam_start(void) {
 
     nrf24_spi_init();
 
-    /* 2 Mbps, max power — same as nrf24_jam but narrowband enough for BLE */
-    nrf24_write_reg(NRF24_REG_RF_SETUP, 0x0E); /* 2 Mbps, +0 dBm */
+    /* Continuous Carrier Mode, max power (+0 dBm) */
+    nrf24_write_reg(NRF24_REG_RF_SETUP,
+        NRF24_RF_SETUP_CONT_WAVE | NRF24_RF_SETUP_PLL_LOCK |
+        NRF24_RF_SETUP_2MBPS | NRF24_RF_SETUP_PWR_MAX);
+
+    nrf24_write_reg(NRF24_REG_RF_CH, ble_channels[0]);
+    furi_delay_us(140);
+    nrf24_ce_set(true);  // LED leuchtet dauerhaft
 
     s.timer = furi_timer_alloc(ble_jam_timer_cb, FuriTimerTypePeriodic, NULL);
     furi_timer_start(s.timer, 1); /* 1 ms per channel */
@@ -61,5 +57,7 @@ void ble_jam_stop(void) {
         s.timer = NULL;
     }
 
+    nrf24_ce_set(false);
+    nrf24_write_reg(NRF24_REG_RF_SETUP, NRF24_RF_SETUP_2MBPS);
     nrf24_spi_deinit();
 }
