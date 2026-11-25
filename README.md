@@ -1,5 +1,7 @@
 # FlipperJammer Suite
 
+[![CI](https://github.com/G4MEOVER18/FlipperJammer/actions/workflows/flipper-fap.yml/badge.svg)](https://github.com/G4MEOVER18/FlipperJammer/actions/workflows/flipper-fap.yml)
+
 8-Modul Jammer-App für Flipper Zero (Momentum Firmware, API 87.1).
 
 ## Module
